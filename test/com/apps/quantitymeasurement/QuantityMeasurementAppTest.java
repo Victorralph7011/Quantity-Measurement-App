@@ -5,77 +5,66 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class QuantityMeasurementAppTest {
 
-    // ==========================================
-    // FEET EQUALITY TESTS
-    // ==========================================
-
     @Test
-    public void testFeetEquality_SameValue() {
-        QuantityMeasurementApp.Feet feet1 = new QuantityMeasurementApp.Feet(1.0);
-        QuantityMeasurementApp.Feet feet2 = new QuantityMeasurementApp.Feet(1.0);
-        assertTrue(feet1.equals(feet2));
+    public void testEquality_FeetToFeet_SameValue() {
+        Length length1 = new Length(1.0, Length.LengthUnit.FEET);
+        Length length2 = new Length(1.0, Length.LengthUnit.FEET);
+        assertTrue(length1.equals(length2));
     }
 
     @Test
-    public void testFeetEquality_DifferentValue() {
-        QuantityMeasurementApp.Feet feet1 = new QuantityMeasurementApp.Feet(1.0);
-        QuantityMeasurementApp.Feet feet2 = new QuantityMeasurementApp.Feet(2.0);
-        assertFalse(feet1.equals(feet2));
+    public void testEquality_InchToInch_SameValue() {
+        Length length1 = new Length(1.0, Length.LengthUnit.INCHES);
+        Length length2 = new Length(1.0, Length.LengthUnit.INCHES);
+        assertTrue(length1.equals(length2));
     }
 
     @Test
-    public void testFeetEquality_NullComparison() {
-        QuantityMeasurementApp.Feet feet1 = new QuantityMeasurementApp.Feet(1.0);
-        assertFalse(feet1.equals(null));
+    public void testEquality_FeetToInch_EquivalentValue() {
+        // 1 Foot == 12 Inches
+        Length length1 = new Length(1.0, Length.LengthUnit.FEET);
+        Length length2 = new Length(12.0, Length.LengthUnit.INCHES);
+        assertTrue(length1.equals(length2));
     }
 
     @Test
-    public void testFeetEquality_DifferentClass() {
-        QuantityMeasurementApp.Feet feet1 = new QuantityMeasurementApp.Feet(1.0);
-        Object otherObject = new Object();
-        assertFalse(feet1.equals(otherObject));
+    public void testEquality_InchToFeet_EquivalentValue() {
+        // 12 Inches == 1 Foot (Testing symmetry)
+        Length length1 = new Length(12.0, Length.LengthUnit.INCHES);
+        Length length2 = new Length(1.0, Length.LengthUnit.FEET);
+        assertTrue(length1.equals(length2));
     }
 
     @Test
-    public void testFeetEquality_SameReference() {
-        QuantityMeasurementApp.Feet feet1 = new QuantityMeasurementApp.Feet(1.0);
-        assertTrue(feet1.equals(feet1));
-    }
-
-    // ==========================================
-    // INCHES EQUALITY TESTS
-    // ==========================================
-
-    @Test
-    public void testInchesEquality_SameValue() {
-        QuantityMeasurementApp.Inches inch1 = new QuantityMeasurementApp.Inches(1.0);
-        QuantityMeasurementApp.Inches inch2 = new QuantityMeasurementApp.Inches(1.0);
-        assertTrue(inch1.equals(inch2));
+    public void testEquality_FeetToFeet_DifferentValue() {
+        Length length1 = new Length(1.0, Length.LengthUnit.FEET);
+        Length length2 = new Length(2.0, Length.LengthUnit.FEET);
+        assertFalse(length1.equals(length2));
     }
 
     @Test
-    public void testInchesEquality_DifferentValue() {
-        QuantityMeasurementApp.Inches inch1 = new QuantityMeasurementApp.Inches(1.0);
-        QuantityMeasurementApp.Inches inch2 = new QuantityMeasurementApp.Inches(2.0);
-        assertFalse(inch1.equals(inch2));
+    public void testEquality_InchToInch_DifferentValue() {
+        Length length1 = new Length(1.0, Length.LengthUnit.INCHES);
+        Length length2 = new Length(2.0, Length.LengthUnit.INCHES);
+        assertFalse(length1.equals(length2));
     }
 
     @Test
-    public void testInchesEquality_NullComparison() {
-        QuantityMeasurementApp.Inches inch1 = new QuantityMeasurementApp.Inches(1.0);
-        assertFalse(inch1.equals(null));
+    public void testEquality_SameReference() {
+        Length length1 = new Length(1.0, Length.LengthUnit.FEET);
+        assertTrue(length1.equals(length1));
     }
 
     @Test
-    public void testInchesEquality_DifferentClass() {
-        QuantityMeasurementApp.Inches inch1 = new QuantityMeasurementApp.Inches(1.0);
-        Object otherObject = new Object();
-        assertFalse(inch1.equals(otherObject));
+    public void testEquality_NullComparison() {
+        Length length1 = new Length(1.0, Length.LengthUnit.FEET);
+        assertFalse(length1.equals(null));
     }
 
     @Test
-    public void testInchesEquality_SameReference() {
-        QuantityMeasurementApp.Inches inch1 = new QuantityMeasurementApp.Inches(1.0);
-        assertTrue(inch1.equals(inch1));
+    public void testEquality_DifferentClass() {
+        Length length1 = new Length(1.0, Length.LengthUnit.FEET);
+        Object obj = new Object();
+        assertFalse(length1.equals(obj));
     }
 }
