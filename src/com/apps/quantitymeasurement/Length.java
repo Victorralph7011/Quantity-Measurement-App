@@ -6,10 +6,12 @@ public class Length {
     private final LengthUnit unit;
 
     // Enum to represent different length units and their conversion factors
-    // Base unit is inches.
+    // with the base unit being inches.
     public enum LengthUnit {
         FEET(12.0),
-        INCHES(1.0);
+        INCHES(1.0),
+        YARDS(36.0),
+        CENTIMETERS(0.393701);
 
         private final double conversionFactor;
 
@@ -28,9 +30,10 @@ public class Length {
         this.unit = unit;
     }
 
-    // Convert the length value to the base unit (inches)
+    // Convert the length value to the base unit (inches) and round off to two decimal places
+    // This rounding is crucial for accurate cross-unit floating-point comparisons (e.g., cm to feet)
     private double convertToBaseUnit() {
-        return this.value * this.unit.getConversionFactor();
+        return Math.round(this.value * this.unit.getConversionFactor() * 100.0) / 100.0;
     }
 
     // Compare two Length objects for equality based on their values in the base unit
@@ -38,7 +41,7 @@ public class Length {
         return Double.compare(this.convertToBaseUnit(), thatLength.convertToBaseUnit()) == 0;
     }
 
-    // Equals method overridden to safely check reference, null, type, and then value equality
+    // Equals method overridden for comprehensive equality checks
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
