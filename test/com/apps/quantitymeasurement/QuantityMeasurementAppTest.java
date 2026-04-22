@@ -29,8 +29,15 @@ public class QuantityMeasurementAppTest {
         assertTrue(length1.equals(length2));
     }
 
+    @Test
+    public void testEquality_DifferentClass() {
+        Length length1 = new Length(1.0, Length.LengthUnit.FEET);
+        Object obj = new Object();
+        assertFalse(length1.equals(obj));
+    }
+
     // ==========================================
-    // UC4: YARDS TESTS
+    // UC4: YARDS AND CENTIMETERS TESTS
     // ==========================================
     @Test
     public void testEquality_YardToYard_SameValue() {
@@ -81,9 +88,6 @@ public class QuantityMeasurementAppTest {
         assertFalse(yard.equals(feet));
     }
 
-    // ==========================================
-    // UC4: CENTIMETERS TESTS
-    // ==========================================
     @Test
     public void testEquality_centimetersToInches_EquivalentValue() {
         Length cm = new Length(1.0, Length.LengthUnit.CENTIMETERS);
@@ -105,16 +109,12 @@ public class QuantityMeasurementAppTest {
         assertFalse(cm.equals(feet));
     }
 
-    // ==========================================
-    // UC4: TRANSITIVE & EDGE CASES
-    // ==========================================
     @Test
     public void testEquality_MultiUnit_TransitiveProperty() {
         Length yard = new Length(1.0, Length.LengthUnit.YARDS);
         Length feet = new Length(3.0, Length.LengthUnit.FEET);
         Length inches = new Length(36.0, Length.LengthUnit.INCHES);
 
-        // If A = B and B = C, then A = C
         assertTrue(yard.equals(feet));
         assertTrue(feet.equals(inches));
         assertTrue(yard.equals(inches));
@@ -152,5 +152,88 @@ public class QuantityMeasurementAppTest {
     public void testEquality_CentimetersSameReference() {
         Length cm = new Length(1.0, Length.LengthUnit.CENTIMETERS);
         assertTrue(cm.equals(cm));
+    }
+
+    // ==========================================
+    // UC5: EXPLICIT CONVERSION TESTS
+    // ==========================================
+    @Test
+    public void testConversion_FeetToInches() {
+        double result = Length.convert(1.0, Length.LengthUnit.FEET, Length.LengthUnit.INCHES);
+        assertEquals(12.0, result, 0.001);
+    }
+
+    @Test
+    public void testConversion_InchesToFeet() {
+        double result = Length.convert(24.0, Length.LengthUnit.INCHES, Length.LengthUnit.FEET);
+        assertEquals(2.0, result, 0.001);
+    }
+
+    @Test
+    public void testConversion_YardsToInches() {
+        double result = Length.convert(1.0, Length.LengthUnit.YARDS, Length.LengthUnit.INCHES);
+        assertEquals(36.0, result, 0.001);
+    }
+
+    @Test
+    public void testConversion_InchesToYards() {
+        double result = Length.convert(72.0, Length.LengthUnit.INCHES, Length.LengthUnit.YARDS);
+        assertEquals(2.0, result, 0.001);
+    }
+
+    @Test
+    public void testConversion_CentimetersToInches() {
+        double result = Length.convert(2.54, Length.LengthUnit.CENTIMETERS, Length.LengthUnit.INCHES);
+        assertEquals(1.0, result, 0.001);
+    }
+
+    @Test
+    public void testConversion_FeetToYard() {
+        double result = Length.convert(6.0, Length.LengthUnit.FEET, Length.LengthUnit.YARDS);
+        assertEquals(2.0, result, 0.001);
+    }
+
+    @Test
+    public void testConversion_ZeroValue() {
+        double result = Length.convert(0.0, Length.LengthUnit.FEET, Length.LengthUnit.INCHES);
+        assertEquals(0.0, result, 0.001);
+    }
+
+    @Test
+    public void testConversion_NegativeValue() {
+        double result = Length.convert(-1.0, Length.LengthUnit.FEET, Length.LengthUnit.INCHES);
+        assertEquals(-12.0, result, 0.001);
+    }
+
+    @Test
+    public void testConversion_RoundTrip_PreservesValue() {
+        double original = 15.5;
+        double inches = Length.convert(original, Length.LengthUnit.FEET, Length.LengthUnit.INCHES);
+        double roundTrip = Length.convert(inches, Length.LengthUnit.INCHES, Length.LengthUnit.FEET);
+        assertEquals(original, roundTrip, 0.001);
+    }
+
+    // ==========================================
+    // UC5: EXCEPTION & VALIDATION TESTS
+    // ==========================================
+    @Test
+    public void testConversion_InvalidUnit_Throws() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            Length.convert(5.0, null, Length.LengthUnit.FEET);
+        });
+    }
+
+    @Test
+    public void testConversion_NaN_Throws() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            Length.convert(Double.NaN, Length.LengthUnit.FEET, Length.LengthUnit.INCHES);
+        });
+    }
+
+    @Test
+    public void testConversion_Infinite_Throws() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            Length.convert(Double.POSITIVE_INFINITY, Length.LengthUnit.FEET, Length.LengthUnit.INCHES);
+        });
     }
 }

@@ -1,43 +1,40 @@
 package com.apps.quantitymeasurement;
 
-/**
- * QuantityMeasurementAppUC4 - Use Case 4: Extended Unit Support
- *
- * This class extends the Quantity Measurement Application (UC3) by introducing
- * support for additional length units: yards and centimeters.
- */
 public class QuantityMeasurementApp {
 
-    // Create a generic static method to take in method parameters and demonstrate equality checks
-    public static boolean demonstrateLengthComparison(double value1, Length.LengthUnit unit1, double value2, Length.LengthUnit unit2) {
-        Length length1 = new Length(value1, unit1);
-        Length length2 = new Length(value2, unit2);
-        boolean result = length1.equals(length2);
-
-        System.out.println("Input: Quantity(" + value1 + ", " + unit1 + ") and Quantity(" + value2 + ", " + unit2 + ")");
-        System.out.println("Output: Equal (" + result + ")\n");
-        return result;
+    public static boolean demonstrateLengthEquality(Length length1, Length length2) {
+        return length1.equals(length2);
     }
 
-    // Main method to demonstrate extended unit support
+    // UC5: Overloaded Method 1 - Converts from raw primitives
+    public static Length demonstrateLengthConversion(double value, Length.LengthUnit fromUnit, Length.LengthUnit toUnit) {
+        Length original = new Length(value, fromUnit);
+        return original.convertTo(toUnit);
+    }
+
+    // UC5: Overloaded Method 2 - Converts from an existing Length object
+    public static Length demonstrateLengthConversion(Length length, Length.LengthUnit toUnit) {
+        return length.convertTo(toUnit);
+    }
+
     public static void main(String[] args) {
         System.out.println("==================================================");
-        System.out.println(" UC4 - Extended Unit Support ");
+        System.out.println(" UC5 - Unit-to-Unit Conversion ");
         System.out.println("==================================================\n");
 
-        // Demonstrate Feet and Inches comparison
-        demonstrateLengthComparison(1.0, Length.LengthUnit.FEET, 12.0, Length.LengthUnit.INCHES);
+        System.out.println("Input: convert(1.0, FEET, INCHES) -> Output: " +
+                Length.convert(1.0, Length.LengthUnit.FEET, Length.LengthUnit.INCHES));
 
-        // Demonstrate Yards and Inches comparison
-        demonstrateLengthComparison(1.0, Length.LengthUnit.YARDS, 36.0, Length.LengthUnit.INCHES);
+        System.out.println("Input: convert(3.0, YARDS, FEET) -> Output: " +
+                Length.convert(3.0, Length.LengthUnit.YARDS, Length.LengthUnit.FEET));
 
-        // Demonstrate Centimeters and Inches comparison
-        demonstrateLengthComparison(1.0, Length.LengthUnit.CENTIMETERS, 0.393701, Length.LengthUnit.INCHES);
+        System.out.println("Input: convert(36.0, INCHES, YARDS) -> Output: " +
+                Length.convert(36.0, Length.LengthUnit.INCHES, Length.LengthUnit.YARDS));
 
-        // Demonstrate Feet and Yards comparison
-        demonstrateLengthComparison(3.0, Length.LengthUnit.FEET, 1.0, Length.LengthUnit.YARDS);
+        System.out.println("Input: convert(1.0, CENTIMETERS, INCHES) -> Output: " +
+                String.format("~%f", Length.convert(1.0, Length.LengthUnit.CENTIMETERS, Length.LengthUnit.INCHES)));
 
-        // Demonstrate Centimeters and Feet comparison
-        demonstrateLengthComparison(30.48, Length.LengthUnit.CENTIMETERS, 1.0, Length.LengthUnit.FEET);
+        System.out.println("Input: convert(0.0, FEET, INCHES) -> Output: " +
+                Length.convert(0.0, Length.LengthUnit.FEET, Length.LengthUnit.INCHES));
     }
 }

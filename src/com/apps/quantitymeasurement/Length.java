@@ -1,12 +1,9 @@
 package com.apps.quantitymeasurement;
 
 public class Length {
-    // Instance variables
     private final double value;
     private final LengthUnit unit;
 
-    // Enum to represent different length units and their conversion factors
-    // with the base unit being inches.
     public enum LengthUnit {
         FEET(12.0),
         INCHES(1.0),
@@ -24,30 +21,70 @@ public class Length {
         }
     }
 
-    // Constructor to initialize length value and unit
+    // Constructor with fail-fast validation
     public Length(double value, LengthUnit unit) {
+        if (!Double.isFinite(value)) {
+            throw new IllegalArgumentException("Measurement value must be a finite number.");
+        }
+        if (unit == null) {
+            throw new IllegalArgumentException("Measurement unit cannot be null.");
+        }
         this.value = value;
         this.unit = unit;
     }
 
-    // Convert the length value to the base unit (inches) and round off to two decimal places
-    // This rounding is crucial for accurate cross-unit floating-point comparisons (e.g., cm to feet)
+    // Private helper for equality comparisons (rounds to 2 decimal places)
     private double convertToBaseUnit() {
         return Math.round(this.value * this.unit.getConversionFactor() * 100.0) / 100.0;
     }
 
-    // Compare two Length objects for equality based on their values in the base unit
+    // UC5: Instance method returning a new Length object
+    public Length convertTo(LengthUnit targetUnit) {
+        if (targetUnit == null) {
+            throw new IllegalArgumentException("Target unit cannot be null.");
+        }
+        // Convert current value to inches, then divide by target unit factor
+        double valueInInches = this.value * this.unit.getConversionFactor();
+        double convertedValue = valueInInches / targetUnit.getConversionFactor();
+
+        // Round to 2 decimal places for consistent representation
+        convertedValue = Math.round(convertedValue * 100.0) / 100.0;
+
+        return new Length(convertedValue, targetUnit);
+    }
+
+    // UC5: Static API method returning a raw double
+    public static double convert(double value, LengthUnit source, LengthUnit target) {
+        if (!Double.isFinite(value)) {
+            throw new IllegalArgumentException("Value must be a finite number.");
+        }
+        if (source == null || target == null) {
+            throw new IllegalArgumentException("Units cannot be null.");
+        }
+        double inInches = value * source.getConversionFactor();
+        return inInches / target.getConversionFactor();
+    }
+
     public boolean compare(Length thatLength) {
         return Double.compare(this.convertToBaseUnit(), thatLength.convertToBaseUnit()) == 0;
     }
 
-    // Equals method overridden for comprehensive equality checks
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         Length thatLength = (Length) o;
         return this.compare(thatLength);
+    }
+
+    // Overridden toString for clean logging
+    @Override
+    public String toString() {
+        return String.format("%.2f %s", value, unit.name());
+    }
+
+    // Getter for testing purposes
+    public double getValue() {
+        return value;
     }
 }
