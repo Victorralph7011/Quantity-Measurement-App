@@ -43,11 +43,9 @@ public class Length {
         if (targetUnit == null) {
             throw new IllegalArgumentException("Target unit cannot be null.");
         }
-        // Convert current value to inches, then divide by target unit factor
         double valueInInches = this.value * this.unit.getConversionFactor();
         double convertedValue = valueInInches / targetUnit.getConversionFactor();
 
-        // Round to 2 decimal places for consistent representation
         convertedValue = Math.round(convertedValue * 100.0) / 100.0;
 
         return new Length(convertedValue, targetUnit);
@@ -65,6 +63,23 @@ public class Length {
         return inInches / target.getConversionFactor();
     }
 
+    // UC6: Addition of Two Length Units
+    public Length add(Length otherLength) {
+        if (otherLength == null) {
+            throw new IllegalArgumentException("Cannot add a null measurement.");
+        }
+
+        // Convert the incoming length to the unit of THIS length
+        Length convertedOther = otherLength.convertTo(this.unit);
+
+        // Add values together and round to handle floating-point anomalies
+        double sum = this.value + convertedOther.getValue();
+        sum = Math.round(sum * 100.0) / 100.0;
+
+        // Return a brand new instance (Immutability Principle)
+        return new Length(sum, this.unit);
+    }
+
     public boolean compare(Length thatLength) {
         return Double.compare(this.convertToBaseUnit(), thatLength.convertToBaseUnit()) == 0;
     }
@@ -77,14 +92,17 @@ public class Length {
         return this.compare(thatLength);
     }
 
-    // Overridden toString for clean logging
     @Override
     public String toString() {
-        return String.format("%.2f %s", value, unit.name());
+        return String.format("Quantity(%.1f, %s)", value, unit.name());
     }
 
-    // Getter for testing purposes
+    // Getters for testing and display purposes
     public double getValue() {
         return value;
+    }
+
+    public LengthUnit getUnit() {
+        return unit;
     }
 }
