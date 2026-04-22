@@ -33,9 +33,9 @@ public class Length {
         this.unit = unit;
     }
 
-    // Private helper for equality comparisons (rounds to 2 decimal places)
+    // Private helper for equality comparisons (updated to 3 decimal places for better precision)
     private double convertToBaseUnit() {
-        return Math.round(this.value * this.unit.getConversionFactor() * 100.0) / 100.0;
+        return Math.round(this.value * this.unit.getConversionFactor() * 1000.0) / 1000.0;
     }
 
     // UC5: Instance method returning a new Length object
@@ -46,7 +46,7 @@ public class Length {
         double valueInInches = this.value * this.unit.getConversionFactor();
         double convertedValue = valueInInches / targetUnit.getConversionFactor();
 
-        convertedValue = Math.round(convertedValue * 100.0) / 100.0;
+        convertedValue = Math.round(convertedValue * 1000.0) / 1000.0;
 
         return new Length(convertedValue, targetUnit);
     }
@@ -63,25 +63,43 @@ public class Length {
         return inInches / target.getConversionFactor();
     }
 
-    // UC6: Addition of Two Length Units
+    // UC7: Private utility method to centralize addition logic (DRY Principle)
+    private Length computeAddition(Length otherLength, LengthUnit targetUnit) {
+        // Convert both values to base unit (inches)
+        double thisInches = this.value * this.unit.getConversionFactor();
+        double otherInches = otherLength.getValue() * otherLength.getUnit().getConversionFactor();
+
+        // Sum and convert to target unit
+        double sumInTargetUnit = (thisInches + otherInches) / targetUnit.getConversionFactor();
+
+        // Round to 3 decimal places
+        sumInTargetUnit = Math.round(sumInTargetUnit * 1000.0) / 1000.0;
+
+        return new Length(sumInTargetUnit, targetUnit);
+    }
+
+    // UC6: Addition where the target unit defaults to the first operand's unit
     public Length add(Length otherLength) {
         if (otherLength == null) {
             throw new IllegalArgumentException("Cannot add a null measurement.");
         }
+        return computeAddition(otherLength, this.unit); // Delegates to utility method
+    }
 
-        // Convert the incoming length to the unit of THIS length
-        Length convertedOther = otherLength.convertTo(this.unit);
-
-        // Add values together and round to handle floating-point anomalies
-        double sum = this.value + convertedOther.getValue();
-        sum = Math.round(sum * 100.0) / 100.0;
-
-        // Return a brand new instance (Immutability Principle)
-        return new Length(sum, this.unit);
+    // UC7: Overloaded addition method with explicit target unit
+    public Length add(Length otherLength, LengthUnit targetUnit) {
+        if (otherLength == null) {
+            throw new IllegalArgumentException("Cannot add a null measurement.");
+        }
+        if (targetUnit == null) {
+            throw new IllegalArgumentException("Target unit cannot be null.");
+        }
+        return computeAddition(otherLength, targetUnit); // Delegates to utility method
     }
 
     public boolean compare(Length thatLength) {
-        return Double.compare(this.convertToBaseUnit(), thatLength.convertToBaseUnit()) == 0;
+        // We check if the difference is within a very small epsilon due to floating point math
+        return Math.abs(this.convertToBaseUnit() - thatLength.convertToBaseUnit()) < 0.01;
     }
 
     @Override
@@ -94,15 +112,9 @@ public class Length {
 
     @Override
     public String toString() {
-        return String.format("Quantity(%.1f, %s)", value, unit.name());
+        return String.format("Quantity(%.3f, %s)", value, unit.name());
     }
 
-    // Getters for testing and display purposes
-    public double getValue() {
-        return value;
-    }
-
-    public LengthUnit getUnit() {
-        return unit;
-    }
+    public double getValue() { return value; }
+    public LengthUnit getUnit() { return unit; }
 }
