@@ -506,3 +506,95 @@ public void testConvertFromBaseUnit_FeetToYards() {
 public void testConvertFromBaseUnit_FeetToCentimeters() {
     assertEquals(30.48, LengthUnit.CENTIMETERS.convertFromBaseUnit(1.0), 0.001);
 }
+// ==========================================
+// UC9: WEIGHT MEASUREMENT TESTS
+// ==========================================
+
+@Test
+public void testEquality_KilogramToKilogram_SameValue() {
+    QuantityWeight w1 = new QuantityWeight(1.0, WeightUnit.KILOGRAM);
+    QuantityWeight w2 = new QuantityWeight(1.0, WeightUnit.KILOGRAM);
+    assertTrue(w1.equals(w2));
+}
+
+@Test
+public void testEquality_KilogramToGram_EquivalentValue() {
+    QuantityWeight w1 = new QuantityWeight(1.0, WeightUnit.KILOGRAM);
+    QuantityWeight w2 = new QuantityWeight(1000.0, WeightUnit.GRAM);
+    assertTrue(w1.equals(w2));
+}
+
+@Test
+public void testEquality_GramToKilogram_EquivalentValue() {
+    QuantityWeight w1 = new QuantityWeight(1000.0, WeightUnit.GRAM);
+    QuantityWeight w2 = new QuantityWeight(1.0, WeightUnit.KILOGRAM);
+    assertTrue(w1.equals(w2));
+}
+
+@Test
+public void testEquality_KilogramToPound_EquivalentValue() {
+    QuantityWeight w1 = new QuantityWeight(1.0, WeightUnit.KILOGRAM);
+    QuantityWeight w2 = new QuantityWeight(2.20462, WeightUnit.POUND);
+    assertTrue(w1.equals(w2));
+}
+
+// --- CATEGORY TYPE SAFETY TEST ---
+@Test
+public void testEquality_WeightVsLength_Incompatible() {
+    QuantityWeight weight = new QuantityWeight(1.0, WeightUnit.KILOGRAM);
+    Length length = new Length(1.0, LengthUnit.FEET);
+    // Ensure that comparing two different measurement categories safely returns false
+    assertFalse(weight.equals(length));
+}
+
+@Test
+public void testConversion_PoundToKilogram() {
+    QuantityWeight w1 = new QuantityWeight(2.20462, WeightUnit.POUND);
+    QuantityWeight result = w1.convertTo(WeightUnit.KILOGRAM);
+    assertTrue(result.equals(new QuantityWeight(1.0, WeightUnit.KILOGRAM)));
+}
+
+@Test
+public void testConversion_KilogramToPound() {
+    QuantityWeight w1 = new QuantityWeight(1.0, WeightUnit.KILOGRAM);
+    QuantityWeight result = w1.convertTo(WeightUnit.POUND);
+    assertTrue(result.equals(new QuantityWeight(2.20462, WeightUnit.POUND)));
+}
+
+@Test
+public void testAddition_SameUnit_KilogramPlusKilogram() {
+    QuantityWeight w1 = new QuantityWeight(1.0, WeightUnit.KILOGRAM);
+    QuantityWeight w2 = new QuantityWeight(2.0, WeightUnit.KILOGRAM);
+    QuantityWeight result = w1.add(w2);
+    assertTrue(result.equals(new QuantityWeight(3.0, WeightUnit.KILOGRAM)));
+}
+
+@Test
+public void testAddition_CrossUnit_PoundPlusKilogram() {
+    QuantityWeight w1 = new QuantityWeight(2.20462, WeightUnit.POUND);
+    QuantityWeight w2 = new QuantityWeight(1.0, WeightUnit.KILOGRAM);
+    QuantityWeight result = w1.add(w2); // Implicitly returns POUNDS based on w1
+    assertTrue(result.equals(new QuantityWeight(4.40924, WeightUnit.POUND)));
+}
+
+@Test
+public void testAddition_ExplicitTargetUnit_Gram() {
+    QuantityWeight w1 = new QuantityWeight(1.0, WeightUnit.KILOGRAM);
+    QuantityWeight w2 = new QuantityWeight(1000.0, WeightUnit.GRAM);
+    QuantityWeight result = w1.add(w2, WeightUnit.GRAM);
+    assertTrue(result.equals(new QuantityWeight(2000.0, WeightUnit.GRAM)));
+}
+
+@Test
+public void testEquality_ZeroValue_Weight() {
+    QuantityWeight w1 = new QuantityWeight(0.0, WeightUnit.KILOGRAM);
+    QuantityWeight w2 = new QuantityWeight(0.0, WeightUnit.GRAM);
+    assertTrue(w1.equals(w2));
+}
+
+@Test
+public void testEquality_NegativeWeight() {
+    QuantityWeight w1 = new QuantityWeight(-1.0, WeightUnit.KILOGRAM);
+    QuantityWeight w2 = new QuantityWeight(-1000.0, WeightUnit.GRAM);
+    assertTrue(w1.equals(w2));
+}
