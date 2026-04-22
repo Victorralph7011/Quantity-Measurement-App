@@ -2,24 +2,7 @@ package com.apps.quantitymeasurement;
 
 public class Length {
     private final double value;
-    private final LengthUnit unit;
-
-    public enum LengthUnit {
-        FEET(12.0),
-        INCHES(1.0),
-        YARDS(36.0),
-        CENTIMETERS(0.393701);
-
-        private final double conversionFactor;
-
-        LengthUnit(double conversionFactor) {
-            this.conversionFactor = conversionFactor;
-        }
-
-        public double getConversionFactor() {
-            return conversionFactor;
-        }
-    }
+    private final LengthUnit unit; // Now references the standalone Enum
 
     // Constructor with fail-fast validation
     public Length(double value, LengthUnit unit) {
@@ -33,25 +16,26 @@ public class Length {
         this.unit = unit;
     }
 
-    // Private helper for equality comparisons (updated to 3 decimal places for better precision)
-    private double convertToBaseUnit() {
-        return Math.round(this.value * this.unit.getConversionFactor() * 1000.0) / 1000.0;
+    // Private helper for equality comparisons (rounds to 3 decimal places)
+    private double getBaseValueRounded() {
+        return Math.round(this.unit.convertToBaseUnit(this.value) * 1000.0) / 1000.0;
     }
 
-    // UC5: Instance method returning a new Length object
+    // Instance method returning a new Length object
     public Length convertTo(LengthUnit targetUnit) {
         if (targetUnit == null) {
             throw new IllegalArgumentException("Target unit cannot be null.");
         }
-        double valueInInches = this.value * this.unit.getConversionFactor();
-        double convertedValue = valueInInches / targetUnit.getConversionFactor();
+        // UC8: Delegated Conversion
+        double baseValue = this.unit.convertToBaseUnit(this.value);
+        double convertedValue = targetUnit.convertFromBaseUnit(baseValue);
 
         convertedValue = Math.round(convertedValue * 1000.0) / 1000.0;
 
         return new Length(convertedValue, targetUnit);
     }
 
-    // UC5: Static API method returning a raw double
+    // Static API method returning a raw double
     public static double convert(double value, LengthUnit source, LengthUnit target) {
         if (!Double.isFinite(value)) {
             throw new IllegalArgumentException("Value must be a finite number.");
@@ -59,34 +43,32 @@ public class Length {
         if (source == null || target == null) {
             throw new IllegalArgumentException("Units cannot be null.");
         }
-        double inInches = value * source.getConversionFactor();
-        return inInches / target.getConversionFactor();
+        // UC8: Delegated Conversion
+        double baseValue = source.convertToBaseUnit(value);
+        return target.convertFromBaseUnit(baseValue);
     }
 
-    // UC7: Private utility method to centralize addition logic (DRY Principle)
+    // Private utility method to centralize addition logic
     private Length computeAddition(Length otherLength, LengthUnit targetUnit) {
-        // Convert both values to base unit (inches)
-        double thisInches = this.value * this.unit.getConversionFactor();
-        double otherInches = otherLength.getValue() * otherLength.getUnit().getConversionFactor();
+        // UC8: Delegated Conversion
+        double thisBase = this.unit.convertToBaseUnit(this.value);
+        double otherBase = otherLength.getUnit().convertToBaseUnit(otherLength.getValue());
 
-        // Sum and convert to target unit
-        double sumInTargetUnit = (thisInches + otherInches) / targetUnit.getConversionFactor();
+        double sumBase = thisBase + otherBase;
+        double sumInTargetUnit = targetUnit.convertFromBaseUnit(sumBase);
 
-        // Round to 3 decimal places
         sumInTargetUnit = Math.round(sumInTargetUnit * 1000.0) / 1000.0;
 
         return new Length(sumInTargetUnit, targetUnit);
     }
 
-    // UC6: Addition where the target unit defaults to the first operand's unit
     public Length add(Length otherLength) {
         if (otherLength == null) {
             throw new IllegalArgumentException("Cannot add a null measurement.");
         }
-        return computeAddition(otherLength, this.unit); // Delegates to utility method
+        return computeAddition(otherLength, this.unit);
     }
 
-    // UC7: Overloaded addition method with explicit target unit
     public Length add(Length otherLength, LengthUnit targetUnit) {
         if (otherLength == null) {
             throw new IllegalArgumentException("Cannot add a null measurement.");
@@ -94,12 +76,11 @@ public class Length {
         if (targetUnit == null) {
             throw new IllegalArgumentException("Target unit cannot be null.");
         }
-        return computeAddition(otherLength, targetUnit); // Delegates to utility method
+        return computeAddition(otherLength, targetUnit);
     }
 
     public boolean compare(Length thatLength) {
-        // We check if the difference is within a very small epsilon due to floating point math
-        return Math.abs(this.convertToBaseUnit() - thatLength.convertToBaseUnit()) < 0.01;
+        return Math.abs(this.getBaseValueRounded() - thatLength.getBaseValueRounded()) < 0.01;
     }
 
     @Override

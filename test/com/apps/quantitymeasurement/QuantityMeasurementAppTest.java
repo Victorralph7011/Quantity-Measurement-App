@@ -443,3 +443,66 @@ public void testAddition_ExplicitTargetUnit_SmallToLargeScale() {
     Length result = l1.add(l2, Length.LengthUnit.YARDS);
     assertTrue(result.equals(new Length(0.667, Length.LengthUnit.YARDS)));
 }
+// ==========================================
+// UC8: STANDALONE ENUM TESTS
+// ==========================================
+
+@Test
+public void testLengthUnitEnum_FeetConstant() {
+    assertEquals(1.0, LengthUnit.FEET.getConversionFactor(), 0.001);
+}
+
+@Test
+public void testLengthUnitEnum_InchesConstant() {
+    assertEquals(0.0833, LengthUnit.INCHES.getConversionFactor(), 0.001);
+}
+
+@Test
+public void testLengthUnitEnum_YardsConstant() {
+    assertEquals(3.0, LengthUnit.YARDS.getConversionFactor(), 0.001);
+}
+
+@Test
+public void testLengthUnitEnum_CentimetersConstant() {
+    assertEquals(0.0328, LengthUnit.CENTIMETERS.getConversionFactor(), 0.001);
+}
+
+@Test
+public void testConvertToBaseUnit_FeetToFeet() {
+    assertEquals(5.0, LengthUnit.FEET.convertToBaseUnit(5.0), 0.001);
+}
+
+@Test
+public void testConvertToBaseUnit_InchesToFeet() {
+    assertEquals(1.0, LengthUnit.INCHES.convertToBaseUnit(12.0), 0.001);
+}
+
+@Test
+public void testConvertToBaseUnit_YardsToFeet() {
+    assertEquals(3.0, LengthUnit.YARDS.convertToBaseUnit(1.0), 0.001);
+}
+
+@Test
+public void testConvertToBaseUnit_CentimetersToFeet() {
+    assertEquals(1.0, LengthUnit.CENTIMETERS.convertToBaseUnit(30.48), 0.001);
+}
+
+@Test
+public void testConvertFromBaseUnit_FeetToFeet() {
+    assertEquals(2.0, LengthUnit.FEET.convertFromBaseUnit(2.0), 0.001);
+}
+
+@Test
+public void testConvertFromBaseUnit_FeetToInches() {
+    assertEquals(12.0, LengthUnit.INCHES.convertFromBaseUnit(1.0), 0.001);
+}
+
+@Test
+public void testConvertFromBaseUnit_FeetToYards() {
+    assertEquals(1.0, LengthUnit.YARDS.convertFromBaseUnit(3.0), 0.001);
+}
+
+@Test
+public void testConvertFromBaseUnit_FeetToCentimeters() {
+    assertEquals(30.48, LengthUnit.CENTIMETERS.convertFromBaseUnit(1.0), 0.001);
+}
